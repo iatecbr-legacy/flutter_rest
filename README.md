@@ -1,11 +1,11 @@
 # rest
 
-A new Flutter package project.
+A rest client base to make API requests.
 
 ## Getting Started
 
 This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
+[package](https://flutter.dev/restbase/),
 a library module containing code that can be shared easily across
 multiple Flutter or Dart projects.
 

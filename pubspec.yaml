@@ -1,8 +1,7 @@
-name: rest
-description: A new Flutter package project.
+name: restbase
+description: A rest client base to make API requests.
 version: 0.0.1
-author:
-homepage:
+homepage: https://github.com/iatecbr/flutter_rest
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -10,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dio: 3.0.9
+  dio: ^3.0.9
 
 dev_dependencies:
   flutter_test:
