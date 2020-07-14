@@ -89,6 +89,20 @@ abstract class Rest {
     return res;
   }
 
+  Future<RequestResult> put(String path, dynamic data, {String contenttype, Map<String, dynamic> query, Options options}) async {
+    RequestResult res = RequestResult();
+    try {
+      if (options == null) options = Options();
+      options.contentType = contenttype ?? defaultContentType;
+
+      var resRest = await dio.put(composeUrl(path, query: query), data: data, options: _buildOptions(options));
+      res.data = resRest.data;
+    } catch (e) {
+      res.error = e;
+    }
+    return res;
+  }
+
   Future<RestResult<T>> getModel<T>(String path, T parse(dynamic), {Map<String, dynamic> query, Options options}) async =>
       _parseRequest(await get(path, query: query, options: options), parse);
 
@@ -103,6 +117,10 @@ abstract class Rest {
   Future<RestResult<List<T>>> postList<T>(String path, dynamic body, T parse(dynamic),
           {Map<String, dynamic> query, Options options}) async =>
       _parseRequest(await post(path, body, query: query, options: options), (d) => _parseList(d, parse));
+
+  Future<RestResult<T>> putModel<T>(String path, {dynamic body, T parse(dynamic),
+          Map<String, dynamic> query, Options options}) async =>
+      _parseRequest(await put(path, body, query: query, options: options), parse??(_)=>_);
 
   List<T> _parseList<T>(dynamic itens, T parse(Map<String, dynamic> item)) =>
       (itens as List<dynamic>).map((e) => parse(e)).toList();
