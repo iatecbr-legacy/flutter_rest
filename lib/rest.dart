@@ -90,7 +90,7 @@ abstract class Rest {
   ///Add a query parameter permanently to all requests
   void addPermanentQuery(String name, String value) {
     if (_permaQuery == null) _permaQuery = Map<String, String>();
-    _permaQuery[name] = value;
+    _permaQuery[Uri.encodeQueryComponent(name)] = Uri.encodeQueryComponent(value);
   }
 
   ///Remove a permanentrly query parameter
