@@ -19,52 +19,93 @@ class RestException implements Exception {
   RestException(this.message);
 }
 
+///An abastract class to use to connect to rest services.
 abstract class Rest {
   Dio dio = Dio();
 
+  ///Base url for the rest service
   String get restUrl;
+
+  ///Default content type to use in post requests
   String defaultContentType;
+
   Map<String, String> _permaQuery;
+
+  ///The time in milliseconds to wait to open a connection
   int connectTimeout;
+
+  ///The time in milliseconds to wait to receive a response
   int receiveTimeout;
 
-  Rest({this.connectTimeout = 30000, this.receiveTimeout = 30000, this.defaultContentType = "application/json"});
+  Rest(
+      {this.connectTimeout = 30000,
+      this.receiveTimeout = 30000,
+      this.defaultContentType = "application/json"});
 
-  String composeUrl(String path, {Map<String, dynamic> query}) { //TODO: fazer testes
-    Map<String, String> newQuery = {};
-    String newBaseUrl = this.restUrl.split("//")[1];
+  /// Creates the request url based on the restUrl, a given path and some optional query paramaters.
+  ///
+  /// Parameters
+  /// [path]: path after base rest url
+  /// [query]: map of query parameters
+  /// [checkSlashs]: check if restUrl and path parameters dont add adicionar slashs between
+  /// [allowNullQueries]: allow queries key to be added without a value
+  ///
+  /// Returns url to make a request
+  String composeUrl(String path,
+      {Map<String, dynamic> query,
+      bool checkSlashs = false,
+      bool allowNullQueries = false}) {
+    StringBuffer sb = StringBuffer(restUrl);
+    if (checkSlashs == true && !restUrl.endsWith("/") && !path.startsWith("/"))
+      sb.write("/");
+    sb.write(path);
 
-    if(newBaseUrl.endsWith("/"))
-      newBaseUrl = newBaseUrl.substring(0, newBaseUrl.length-1);
-    
-    if (_permaQuery != null && _permaQuery.length > 0)
-      newQuery.addAll(_permaQuery);
-    if(query != null  && query.length > 0)
-      query.forEach((key, value) => newQuery[key] = value.toString());
+    if (_permaQuery != null && _permaQuery.length > 0) {
+      sb.write("?");
+      sb.write(_permaQuery.entries.map((e) => "${e.key}=${e.value}").join("&"));
+    }
 
-    if(this.restUrl.startsWith("https"))
-      return Uri.https(newBaseUrl, path, newQuery).toString();
-    else return Uri.http(newBaseUrl, path, newQuery).toString();
+    if (query != null && query.length > 0) {
+      var _query = query.entries
+          .where((element) => allowNullQueries || element.value != null)
+          .map((e) =>
+              "${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value??'')}")
+          .join("&");
+
+      if (_query.length > 0)
+        sb.write(_permaQuery == null || _permaQuery.length == 0
+            ? "?$_query"
+            : "&$_query");
+    }
+    return sb.toString();
   }
 
-  void addInterceptor(Interceptor interceptor) => dio.interceptors.add(interceptor);
-  void removeInterceptor(Interceptor interceptor) => dio.interceptors.remove(interceptor);
-  bool hasInterceptor(Interceptor interceptor) => dio.interceptors.contains(interceptor);
+  void addInterceptor(Interceptor interceptor) =>
+      dio.interceptors.add(interceptor);
+  void removeInterceptor(Interceptor interceptor) =>
+      dio.interceptors.remove(interceptor);
+  bool hasInterceptor(Interceptor interceptor) =>
+      dio.interceptors.contains(interceptor);
 
+  ///Add a query parameter permanently to all requests
   void addPermanentQuery(String name, String value) {
     if (_permaQuery == null) _permaQuery = Map<String, String>();
     _permaQuery[name] = value;
   }
 
+  ///Remove a permanentrly query parameter
   void removePermanentQuery(String name) {
     _permaQuery.remove(name);
     if (_permaQuery.length == 0) _permaQuery = null;
   }
 
-  Future<RequestResult> get(String path, {Map<String, dynamic> query, Options options}) async {
+  ///Get Request
+  Future<RequestResult> get(String path,
+      {Map<String, dynamic> query, Options options}) async {
     RequestResult res = RequestResult();
     try {
-      var resRest = await dio.get(composeUrl(path, query: query), options: _buildOptions(options));
+      var resRest = await dio.get(composeUrl(path, query: query),
+          options: _buildOptions(options));
       res.data = resRest.data;
     } catch (e) {
       res.error = e;
@@ -72,13 +113,16 @@ abstract class Rest {
     return res;
   }
 
-  Future<RequestResult> post(String path, dynamic data, {String contenttype, Map<String, dynamic> query, Options options}) async {
+  ///Post Request
+  Future<RequestResult> post(String path, dynamic data,
+      {String contenttype, Map<String, dynamic> query, Options options}) async {
     RequestResult res = RequestResult();
     try {
       if (options == null) options = Options();
       options.contentType = contenttype ?? defaultContentType;
 
-      var resRest = await dio.post(composeUrl(path, query: query), data: data, options: _buildOptions(options));
+      var resRest = await dio.post(composeUrl(path, query: query),
+          data: data, options: _buildOptions(options));
       res.data = resRest.data;
     } catch (e) {
       res.error = e;
@@ -86,20 +130,31 @@ abstract class Rest {
     return res;
   }
 
-  Future<RestResult<T>> getModel<T>(String path, T parse(dynamic), {Map<String, dynamic> query, Options options}) async =>
+  ///Get request expecting a typed result
+  Future<RestResult<T>> getModel<T>(String path, T parse(dynamic),
+          {Map<String, dynamic> query, Options options}) async =>
       _parseRequest(await get(path, query: query, options: options), parse);
 
-  Future<RestResult<List<T>>> getList<T>(String path, T parse(Map<String, dynamic> mp),
+  ///Get request expecting a typed list result
+  Future<RestResult<List<T>>> getList<T>(
+          String path, T parse(Map<String, dynamic> mp),
           {Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await get(path, query: query, options: options), (d) => _parseList(d, parse));
+      _parseRequest(await get(path, query: query, options: options),
+          (d) => _parseList(d, parse));
 
-  Future<RestResult<T>> postModel<T>(String path, dynamic body, T parse(dynamic),
+  ///Post request expecting a typed result
+  Future<RestResult<T>> postModel<T>(
+          String path, dynamic body, T parse(dynamic),
           {Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await post(path, body, query: query, options: options), parse);
+      _parseRequest(
+          await post(path, body, query: query, options: options), parse);
 
-  Future<RestResult<List<T>>> postList<T>(String path, dynamic body, T parse(dynamic),
+  ///Post request expecting a typed list  result
+  Future<RestResult<List<T>>> postList<T>(
+          String path, dynamic body, T parse(dynamic),
           {Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await post(path, body, query: query, options: options), (d) => _parseList(d, parse));
+      _parseRequest(await post(path, body, query: query, options: options),
+          (d) => _parseList(d, parse));
 
   List<T> _parseList<T>(dynamic itens, T parse(Map<String, dynamic> item)) =>
       (itens as List<dynamic>).map((e) => parse(e)).toList();
@@ -115,6 +170,7 @@ abstract class Rest {
 
   Options _buildOptions(Options options) {
     if (options == null) return null;
-    return options.merge(sendTimeout: connectTimeout, receiveTimeout: receiveTimeout);
+    return options.merge(
+        sendTimeout: connectTimeout, receiveTimeout: receiveTimeout);
   }
 }
