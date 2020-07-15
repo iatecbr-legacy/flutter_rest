@@ -30,26 +30,21 @@ abstract class Rest {
 
   Rest({this.connectTimeout = 30000, this.receiveTimeout = 30000, this.defaultContentType = "application/json"});
 
-  String composeUrl(String path, {Map<String, dynamic> query}) {
-    if(query != null  && query.length > 0){
-      Map<String, String> newQuery = {};
+  String composeUrl(String path, {Map<String, dynamic> query}) { //TODO: fazer testes
+    Map<String, String> newQuery = {};
+    String newBaseUrl = this.restUrl.split("//")[1];
+
+    if(newBaseUrl.endsWith("/"))
+      newBaseUrl = newBaseUrl.substring(0, newBaseUrl.length-1);
+    
+    if (_permaQuery != null && _permaQuery.length > 0)
       newQuery.addAll(_permaQuery);
-      query.forEach((key, value) {
-        newQuery[key] = value.toString();
-      });
-      return Uri.http(this.restUrl.split("//")[1], path, newQuery).toString();
-    }
+    if(query != null  && query.length > 0)
+      query.forEach((key, value) => newQuery[key] = value.toString());
 
-    StringBuffer sb = StringBuffer(restUrl);
-    if (!restUrl.endsWith("/") && !path.startsWith("/")) sb.write("/");
-    sb.write(path);
-
-    if (_permaQuery != null && _permaQuery.length > 0) {
-      sb.write("?");
-      sb.write(_permaQuery.entries.map((e) => "${e.key}=${e.value}").join("&"));
-    }
-
-    return sb.toString();
+    if(this.restUrl.startsWith("https"))
+      return Uri.https(newBaseUrl, path, newQuery).toString();
+    else return Uri.http(newBaseUrl, path, newQuery).toString();
   }
 
   void addInterceptor(Interceptor interceptor) => dio.interceptors.add(interceptor);
