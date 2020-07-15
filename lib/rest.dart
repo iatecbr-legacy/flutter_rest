@@ -31,6 +31,15 @@ abstract class Rest {
   Rest({this.connectTimeout = 30000, this.receiveTimeout = 30000, this.defaultContentType = "application/json"});
 
   String composeUrl(String path, {Map<String, dynamic> query}) {
+    if(query != null  && query.length > 0){
+      Map<String, String> newQuery = {};
+      newQuery.addAll(_permaQuery);
+      query.forEach((key, value) {
+        newQuery[key] = value.toString();
+      });
+      return Uri.http(this.restUrl.split("//")[1], path, newQuery).toString();
+    }
+
     StringBuffer sb = StringBuffer(restUrl);
     if (!restUrl.endsWith("/") && !path.startsWith("/")) sb.write("/");
     sb.write(path);
@@ -40,13 +49,6 @@ abstract class Rest {
       sb.write(_permaQuery.entries.map((e) => "${e.key}=${e.value}").join("&"));
     }
 
-    if (query != null && query.length > 0) {
-      StringBuffer _query = StringBuffer();
-      _query.write(
-        query.entries.where((element) => element.value != null).map((e) => "${e.key}=${e.value}").join("&"),
-      );
-      if (_query.length > 0) sb.write(_permaQuery == null || _permaQuery.length == 0 ? "?$_query" : "&$_query");
-    }
     return sb.toString();
   }
 
