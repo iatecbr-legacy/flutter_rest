@@ -69,7 +69,7 @@ abstract class Rest {
       var _query = query.entries
           .where((element) => allowNullQueries || element.value != null)
           .map((e) =>
-              "${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value??'')}")
+              "${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value ?? '')}")
           .join("&");
 
       if (_query.length > 0)
@@ -90,7 +90,8 @@ abstract class Rest {
   ///Add a query parameter permanently to all requests
   void addPermanentQuery(String name, String value) {
     if (_permaQuery == null) _permaQuery = Map<String, String>();
-    _permaQuery[Uri.encodeQueryComponent(name)] = Uri.encodeQueryComponent(value);
+    _permaQuery[Uri.encodeQueryComponent(name)] =
+        Uri.encodeQueryComponent(value);
   }
 
   ///Remove a permanentrly query parameter
