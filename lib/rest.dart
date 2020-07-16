@@ -69,7 +69,7 @@ abstract class Rest {
       var _query = query.entries
           .where((element) => allowNullQueries || element.value != null)
           .map((e) =>
-              "${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value??'')}")
+              "${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value ?? '')}")
           .join("&");
 
       if (_query.length > 0)
@@ -90,7 +90,8 @@ abstract class Rest {
   ///Add a query parameter permanently to all requests
   void addPermanentQuery(String name, String value) {
     if (_permaQuery == null) _permaQuery = Map<String, String>();
-    _permaQuery[Uri.encodeQueryComponent(name)] = Uri.encodeQueryComponent(value);
+    _permaQuery[Uri.encodeQueryComponent(name)] =
+        Uri.encodeQueryComponent(value);
   }
 
   ///Remove a permanentrly query parameter
@@ -130,6 +131,23 @@ abstract class Rest {
     return res;
   }
 
+  ///Put Request
+  Future<RequestResult> put(String path, dynamic data,
+      {String contenttype, Map<String, dynamic> query, Options options}) async {
+    RequestResult res = RequestResult();
+    try {
+      if (options == null) options = Options();
+      options.contentType = contenttype ?? defaultContentType;
+
+      var resRest = await dio.put(composeUrl(path, query: query),
+          data: data, options: _buildOptions(options));
+      res.data = resRest.data;
+    } catch (e) {
+      res.error = e;
+    }
+    return res;
+  }
+
   ///Get request expecting a typed result
   Future<RestResult<T>> getModel<T>(String path, T parse(dynamic),
           {Map<String, dynamic> query, Options options}) async =>
@@ -155,6 +173,15 @@ abstract class Rest {
           {Map<String, dynamic> query, Options options}) async =>
       _parseRequest(await post(path, body, query: query, options: options),
           (d) => _parseList(d, parse));
+
+  ///Put request expecting or not a typed result
+  Future<RestResult<T>> putModel<T>(String path,
+          {dynamic body,
+          T parse(dynamic),
+          Map<String, dynamic> query,
+          Options options}) async =>
+      _parseRequest(await put(path, body, query: query, options: options),
+          parse ?? (_) => _);
 
   List<T> _parseList<T>(dynamic itens, T parse(Map<String, dynamic> item)) =>
       (itens as List<dynamic>).map((e) => parse(e)).toList();
