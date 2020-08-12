@@ -49,14 +49,17 @@ abstract class Rest {
   /// [query]: map of query parameters
   /// [checkSlashs]: check if restUrl and path parameters dont add adicionar slashs between
   /// [allowNullQueries]: allow queries key to be added without a value
+  /// [baseUrl]: overrides the Rest Base url in case you need to use another endpoint with the same request configuration
   ///
   /// Returns url to make a request
   String composeUrl(String path,
       {Map<String, dynamic> query,
       bool checkSlashs = false,
-      bool allowNullQueries = false}) {
-    StringBuffer sb = StringBuffer(restUrl);
-    if (checkSlashs == true && !restUrl.endsWith("/") && !path.startsWith("/"))
+      bool allowNullQueries = false,
+      String baseUrl}) {
+    String base = baseUrl ?? restUrl;
+    StringBuffer sb = StringBuffer(base);
+    if (checkSlashs == true && !base.endsWith("/") && !path.startsWith("/"))
       sb.write("/");
     sb.write(path);
 
@@ -102,10 +105,11 @@ abstract class Rest {
 
   ///Get Request
   Future<RequestResult> get(String path,
-      {Map<String, dynamic> query, Options options}) async {
+      {String baseUrl, Map<String, dynamic> query, Options options}) async {
     RequestResult res = RequestResult();
     try {
-      var resRest = await dio.get(composeUrl(path, query: query),
+      var resRest = await dio.get(
+          composeUrl(path, query: query, baseUrl: baseUrl),
           options: _buildOptions(options));
       res.data = resRest.data;
     } catch (e) {
@@ -116,14 +120,19 @@ abstract class Rest {
 
   ///Post Request
   Future<RequestResult> post(String path, dynamic data,
-      {String contenttype, Map<String, dynamic> query, Options options}) async {
+      {String baseUrl,
+      String contenttype,
+      Map<String, dynamic> query,
+      Options options}) async {
     RequestResult res = RequestResult();
     try {
       if (options == null) options = Options();
       options.contentType = contenttype ?? defaultContentType;
 
-      var resRest = await dio.post(composeUrl(path, query: query),
-          data: data, options: _buildOptions(options));
+      var resRest = await dio.post(
+          composeUrl(path, query: query, baseUrl: baseUrl),
+          data: data,
+          options: _buildOptions(options));
       res.data = resRest.data;
     } catch (e) {
       res.error = e;
@@ -133,14 +142,19 @@ abstract class Rest {
 
   ///Put Request
   Future<RequestResult> put(String path, dynamic data,
-      {String contenttype, Map<String, dynamic> query, Options options}) async {
+      {String baseUrl,
+      String contenttype,
+      Map<String, dynamic> query,
+      Options options}) async {
     RequestResult res = RequestResult();
     try {
       if (options == null) options = Options();
       options.contentType = contenttype ?? defaultContentType;
 
-      var resRest = await dio.put(composeUrl(path, query: query),
-          data: data, options: _buildOptions(options));
+      var resRest = await dio.put(
+          composeUrl(path, query: query, baseUrl: baseUrl),
+          data: data,
+          options: _buildOptions(options));
       res.data = resRest.data;
     } catch (e) {
       res.error = e;
@@ -150,37 +164,55 @@ abstract class Rest {
 
   ///Get request expecting a typed result
   Future<RestResult<T>> getModel<T>(String path, T parse(dynamic),
-          {Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await get(path, query: query, options: options), parse);
+          {String baseUrl,
+          Map<String, dynamic> query,
+          Options options}) async =>
+      _parseRequest(
+          await get(path, query: query, options: options, baseUrl: baseUrl),
+          parse);
 
   ///Get request expecting a typed list result
   Future<RestResult<List<T>>> getList<T>(
           String path, T parse(Map<String, dynamic> mp),
-          {Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await get(path, query: query, options: options),
+          {String baseUrl,
+          Map<String, dynamic> query,
+          Options options}) async =>
+      _parseRequest(
+          await get(path, query: query, options: options, baseUrl: baseUrl),
           (d) => _parseList(d, parse));
 
   ///Post request expecting a typed result
   Future<RestResult<T>> postModel<T>(
           String path, dynamic body, T parse(dynamic),
-          {Map<String, dynamic> query, Options options}) async =>
+          {String baseUrl,
+          Map<String, dynamic> query,
+          Options options}) async =>
       _parseRequest(
-          await post(path, body, query: query, options: options), parse);
+          await post(path, body,
+              query: query, options: options, baseUrl: baseUrl),
+          parse);
 
   ///Post request expecting a typed list  result
   Future<RestResult<List<T>>> postList<T>(
           String path, dynamic body, T parse(dynamic),
-          {Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await post(path, body, query: query, options: options),
+          {String baseUrl,
+          Map<String, dynamic> query,
+          Options options}) async =>
+      _parseRequest(
+          await post(path, body,
+              query: query, options: options, baseUrl: baseUrl),
           (d) => _parseList(d, parse));
 
   ///Put request expecting or not a typed result
   Future<RestResult<T>> putModel<T>(String path,
           {dynamic body,
           T parse(dynamic),
+          String baseUrl,
           Map<String, dynamic> query,
           Options options}) async =>
-      _parseRequest(await put(path, body, query: query, options: options),
+      _parseRequest(
+          await put(path, body,
+              query: query, options: options, baseUrl: baseUrl),
           parse ?? (_) => _);
 
   List<T> _parseList<T>(dynamic itens, T parse(Map<String, dynamic> item)) =>
