@@ -1,3 +1,7 @@
-## [0.0.1] - TODO: Add release date.
+## [0.0.5] - 2020-08-19
 
-* TODO: Describe initial release.
+ - Fixed composeUrl to allow any type of value
+
+
+
+

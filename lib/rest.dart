@@ -72,7 +72,7 @@ abstract class Rest {
       var _query = query.entries
           .where((element) => allowNullQueries || element.value != null)
           .map((e) =>
-              "${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value ?? '')}")
+              "${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value?.toString() ?? '')}")
           .join("&");
 
       if (_query.length > 0)
