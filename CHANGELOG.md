@@ -1,4 +1,4 @@
-## [0.2.0] - 2020-09-07
+## [0.2.1] - 2020-09-14
 
  - Consolidated parser type. Now the Rest api always expect an object as result.
 

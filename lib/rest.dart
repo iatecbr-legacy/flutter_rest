@@ -208,8 +208,8 @@ abstract class Rest {
       _parseRequest(await post(path, body, query: query, options: options, baseUrl: baseUrl), (d) => _parseList(d, parse));
 
   ///Put request and parses the result using given parser
-  Future<RestResult<T>> modelByPut<T>(String path, T parse(Map<String, dynamic> item),
-          {dynamic body, String baseUrl, Map<String, dynamic> query, Options options}) async =>
+  Future<RestResult<T>> modelByPut<T>(String path, dynamic body, T parse(Map<String, dynamic> item),
+          {String baseUrl, Map<String, dynamic> query, Options options}) async =>
       _parseRequest(await put(path, body, query: query, options: options, baseUrl: baseUrl), parse);
 
   ///Upload a file and parses the result using given parser
