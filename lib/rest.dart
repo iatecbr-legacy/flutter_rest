@@ -190,7 +190,7 @@ abstract class Rest {
   ///Get request and parses the result using given parser
   Future<RestResult<T>> modelByGet<T>(String path, T parse(Map<String, dynamic> item),
           {String baseUrl, Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await get(path, query: query, options: options, baseUrl: baseUrl), parse);
+      _parseRequest(await get(path, query: query, options: options, baseUrl: baseUrl), (e) => parse(e));
 
   ///Get request and parses the result using given parser
   Future<RestResult<List<T>>> listByGet<T>(String path, T parse(Map<String, dynamic> mp),
@@ -200,7 +200,7 @@ abstract class Rest {
   ///Post request and parses the result using given parser
   Future<RestResult<T>> modelByPost<T>(String path, dynamic body, T parse(Map<String, dynamic> item),
           {String baseUrl, Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await post(path, body, query: query, options: options, baseUrl: baseUrl), parse);
+      _parseRequest(await post(path, body, query: query, options: options, baseUrl: baseUrl), (e) => parse(e));
 
   ///Post request and parses the result using given parser
   Future<RestResult<List<T>>> listByPost<T>(String path, dynamic body, T parse(Map<String, dynamic> item),
@@ -210,7 +210,7 @@ abstract class Rest {
   ///Put request and parses the result using given parser
   Future<RestResult<T>> modelByPut<T>(String path, dynamic body, T parse(Map<String, dynamic> item),
           {String baseUrl, Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await put(path, body, query: query, options: options, baseUrl: baseUrl), parse);
+      _parseRequest(await put(path, body, query: query, options: options, baseUrl: baseUrl), (e) => parse(e));
 
   ///Upload a file and parses the result using given parser
   Future<RestResult<T>> modelByUpload<T>(String path, File file, T parse(dynamic),
@@ -228,7 +228,7 @@ abstract class Rest {
   List<T> _parseList<T>(dynamic itens, T parse(Map<String, dynamic> item)) =>
       (itens as List<dynamic>).map((e) => parse(e)).toList();
 
-  RestResult<T> _parseRequest<T>(RequestResult response, T parse(Map<String, dynamic> item)) {
+  RestResult<T> _parseRequest<T>(RequestResult response, T parse(dynamic)) {
     RestResult<T> res = RestResult<T>();
     if (response.success)
       try {
