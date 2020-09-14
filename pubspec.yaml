@@ -1,6 +1,6 @@
 name: restbase
 description: A rest client base to make API requests.
-version: 0.0.6
+version: 0.2.0
 homepage: https://github.com/iatecbr/flutter_rest
 
 environment:

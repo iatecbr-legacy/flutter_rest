@@ -1,3 +1,12 @@
+## [0.2.0] - 2020-09-07
+
+ - Consolidated parser type. Now the Rest api always expect an object as result.
+
+## [0.1.0] - 2020-09-07
+
+ - Add file upload option
+ - Change method names, depracated old methods
+
 ## [0.0.5] - 2020-08-19
 
  - Fixed composeUrl to allow any type of value
