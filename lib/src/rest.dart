@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:restbase/irest.dart';
-import 'package:restbase/request_result.dart';
+import 'package:restbase/src/irest.dart';
+import 'package:restbase/src/request_result.dart';
 
 ///An abastract class to use to connect to rest services.
 abstract class Rest implements IRest {

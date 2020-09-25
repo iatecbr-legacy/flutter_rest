@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:restbase/request_result.dart';
+import 'package:restbase/src/request_result.dart';
 import 'package:http_parser/http_parser.dart';
 
 abstract class IRest {

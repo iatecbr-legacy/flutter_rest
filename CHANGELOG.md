@@ -1,5 +1,9 @@
 ## [0.2.4] - 2020-09-25
 
+ - File organization
+
+## [0.2.4] - 2020-09-25
+
  - Added upload file mime.
 
 ## [0.2.3] - 2020-09-14

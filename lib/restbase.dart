@@ -1,3 +1,3 @@
-export "rest.dart";
-export 'irest.dart';
-export 'request_result.dart';
+export 'src/rest.dart';
+export 'src/irest.dart';
+export 'src/request_result.dart';
