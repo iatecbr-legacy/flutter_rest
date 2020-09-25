@@ -1,28 +1,12 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-
-class RequestResult {
-  dynamic data;
-  Exception error;
-  bool get success => error == null;
-}
-
-class RestResult<T> {
-  T data;
-  Exception error;
-  bool get success => error == null;
-}
-
-class RestListResult<T> extends RestResult<List<T>> {}
-
-class RestException implements Exception {
-  final String message;
-  RestException(this.message);
-}
+import 'package:http_parser/http_parser.dart';
+import 'package:restbase/irest.dart';
+import 'package:restbase/request_result.dart';
 
 ///An abastract class to use to connect to rest services.
-abstract class Rest {
+abstract class Rest implements IRest {
   Dio dio = Dio();
 
   ///Base url for the rest service
@@ -120,15 +104,17 @@ abstract class Rest {
 
   Future<RequestResult> upload(String path, File file,
       {String fileName,
+      String fileType,
       String baseUrl,
       Map<String, dynamic> query,
       Options options,
       String fileKey,
+      MediaType fileMime,
       Map<String, dynamic> extraInfo}) async {
     RequestResult res = RequestResult();
     try {
       var data = extraInfo ?? {};
-      data[fileKey ?? "file"] = await MultipartFile.fromFile(file.path, filename: fileName);
+      data[fileKey ?? "file"] = await MultipartFile.fromFile(file.path, filename: fileName, contentType: fileMime);
 
       FormData formData = FormData.fromMap(data);
 
@@ -219,10 +205,17 @@ abstract class Rest {
           Map<String, dynamic> query,
           Options options,
           String fileKey,
+          MediaType fileMime,
           Map<String, dynamic> extraInfo}) async =>
       _parseRequest(
           await upload(path, file,
-              fileName: fileName, baseUrl: baseUrl, query: query, options: options, fileKey: fileKey, extraInfo: extraInfo),
+              fileName: fileName,
+              baseUrl: baseUrl,
+              query: query,
+              options: options,
+              fileKey: fileKey,
+              fileMime: fileMime,
+              extraInfo: extraInfo),
           parse);
 
   List<T> _parseList<T>(dynamic itens, T parse(Map<String, dynamic> item)) =>

@@ -1,3 +1,11 @@
+## [0.2.4] - 2020-09-25
+
+ - Added upload file mime.
+
+## [0.2.3] - 2020-09-14
+
+ - Error of RestResponse changed to dynamic to accept anything.
+
 ## [0.2.2] - 2020-09-14
 
  - Consolidated parser type. Now the Rest api always expect an object as result.
