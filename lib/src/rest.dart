@@ -2,11 +2,10 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:restbase/src/irest.dart';
 import 'package:restbase/src/request_result.dart';
 
 ///An abastract class to use to connect to rest services.
-abstract class Rest implements IRest {
+abstract class Rest {
   Dio dio = Dio();
 
   ///Base url for the rest service
@@ -15,7 +14,7 @@ abstract class Rest implements IRest {
   ///Default content type to use in post requests
   String defaultContentType;
 
-  Map<String, String> _permaQuery;
+  Map<String, dynamic> _permaQuery;
 
   ///The time in milliseconds to wait to open a connection
   int connectTimeout;
@@ -24,6 +23,14 @@ abstract class Rest implements IRest {
   int receiveTimeout;
 
   Rest({this.connectTimeout = 30000, this.receiveTimeout = 30000, this.defaultContentType = "application/json"});
+
+  String _queryItem(MapEntry<String, dynamic> item) {
+    var key = Uri.encodeQueryComponent(item.key);
+    if (item.value is List) {
+      return (item.value as List).map((e) => "$key=${Uri.encodeQueryComponent(e?.toString()??0)}").join("&");
+    } 
+    return "${Uri.encodeQueryComponent(item.key)}=${Uri.encodeQueryComponent(item.value?.toString() ?? '')}";
+  }
 
   /// Creates the request url based on the restUrl, a given path and some optional query paramaters.
   ///
@@ -42,18 +49,19 @@ abstract class Rest implements IRest {
     if (checkSlashs == true && !base.endsWith("/") && !path.startsWith("/")) sb.write("/");
     sb.write(path);
 
+    if (_permaQuery != null && query != null && !path.contains("?")) sb.write("?");
+
     if (_permaQuery != null && _permaQuery.length > 0) {
-      sb.write("?");
-      sb.write(_permaQuery.entries.map((e) => "${e.key}=${e.value}").join("&"));
+      sb.write(_permaQuery.entries.map(_queryItem).join("&"));
     }
 
     if (query != null && query.length > 0) {
       var _query = query.entries
           .where((element) => allowNullQueries || element.value != null)
-          .map((e) => "${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value?.toString() ?? '')}")
+          .map(_queryItem)
           .join("&");
 
-      if (_query.length > 0) sb.write(_permaQuery == null || _permaQuery.length == 0 ? "?$_query" : "&$_query");
+      if (_query.length > 0) sb.write(_permaQuery == null || _permaQuery.length == 0 ? "$_query" : "&$_query");
     }
     return sb.toString();
   }

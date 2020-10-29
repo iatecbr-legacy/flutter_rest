@@ -1,3 +1,7 @@
+## [0.2.6] - 2020-09-25
+
+ - Parsing list as query item
+
 ## [0.2.4] - 2020-09-25
 
  - File organization
