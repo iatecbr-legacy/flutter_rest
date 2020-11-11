@@ -1,4 +1,8 @@
-## [0.2.6] - 2020-09-25
+## [0.2.8] - 2020-09-25
+
+ - Added delete and head methods
+
+## [0.2.7] - 2020-09-25
 
  - Parsing list as query item
 

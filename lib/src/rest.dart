@@ -49,7 +49,7 @@ abstract class Rest {
     if (checkSlashs == true && !base.endsWith("/") && !path.startsWith("/")) sb.write("/");
     sb.write(path);
 
-    if (_permaQuery != null && query != null && !path.contains("?")) sb.write("?");
+    if ((_permaQuery != null || query != null) && !path.contains("?")) sb.write("?");
 
     if (_permaQuery != null && _permaQuery.length > 0) {
       sb.write(_permaQuery.entries.map(_queryItem).join("&"));
@@ -103,6 +103,34 @@ abstract class Rest {
       options.contentType = contenttype ?? defaultContentType;
 
       var resRest = await dio.post(composeUrl(path, query: query, baseUrl: baseUrl), data: data, options: _buildOptions(options));
+      res.data = resRest.data;
+    } catch (e) {
+      res.error = e;
+    }
+    return res;
+  }
+
+  Future<RequestResult> delete(String path,{String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
+    RequestResult res = RequestResult();
+    try {
+      if (options == null) options = Options();
+      options.contentType = contenttype ?? defaultContentType;
+
+      var resRest = await dio.delete(composeUrl(path, query: query, baseUrl: baseUrl), options: _buildOptions(options));
+      res.data = resRest.data;
+    } catch (e) {
+      res.error = e;
+    }
+    return res;
+  }
+
+Future<RequestResult> head(String path,{String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
+    RequestResult res = RequestResult();
+    try {
+      if (options == null) options = Options();
+      options.contentType = contenttype ?? defaultContentType;
+
+      var resRest = await dio.head(composeUrl(path, query: query, baseUrl: baseUrl), options: _buildOptions(options));
       res.data = resRest.data;
     } catch (e) {
       res.error = e;
