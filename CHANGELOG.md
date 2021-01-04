@@ -1,3 +1,7 @@
+## [0.2.9] - 2020-09-25
+
+ - Added contentType to modelByPost and listByPost 
+
 ## [0.2.8] - 2020-09-25
 
  - Added delete and head methods

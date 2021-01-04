@@ -27,8 +27,8 @@ abstract class Rest {
   String _queryItem(MapEntry<String, dynamic> item) {
     var key = Uri.encodeQueryComponent(item.key);
     if (item.value is List) {
-      return (item.value as List).map((e) => "$key=${Uri.encodeQueryComponent(e?.toString()??0)}").join("&");
-    } 
+      return (item.value as List).map((e) => "$key=${Uri.encodeQueryComponent(e?.toString() ?? 0)}").join("&");
+    }
     return "${Uri.encodeQueryComponent(item.key)}=${Uri.encodeQueryComponent(item.value?.toString() ?? '')}";
   }
 
@@ -56,10 +56,7 @@ abstract class Rest {
     }
 
     if (query != null && query.length > 0) {
-      var _query = query.entries
-          .where((element) => allowNullQueries || element.value != null)
-          .map(_queryItem)
-          .join("&");
+      var _query = query.entries.where((element) => allowNullQueries || element.value != null).map(_queryItem).join("&");
 
       if (_query.length > 0) sb.write(_permaQuery == null || _permaQuery.length == 0 ? "$_query" : "&$_query");
     }
@@ -110,7 +107,8 @@ abstract class Rest {
     return res;
   }
 
-  Future<RequestResult> delete(String path,{String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
+  Future<RequestResult> delete(String path,
+      {String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
     RequestResult res = RequestResult();
     try {
       if (options == null) options = Options();
@@ -124,7 +122,8 @@ abstract class Rest {
     return res;
   }
 
-Future<RequestResult> head(String path,{String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
+  Future<RequestResult> head(String path,
+      {String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
     RequestResult res = RequestResult();
     try {
       if (options == null) options = Options();
@@ -194,14 +193,15 @@ Future<RequestResult> head(String path,{String baseUrl, String contenttype, Map<
   ///Post request expecting a typed result
   @deprecated
   Future<RestResult<T>> postModel<T>(String path, dynamic body, T parse(dynamic),
-          {String baseUrl, Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await post(path, body, query: query, options: options, baseUrl: baseUrl), parse);
+          {String baseUrl, Map<String, dynamic> query, String contentType, Options options}) async =>
+      _parseRequest(await post(path, body, query: query, contenttype: contentType, options: options, baseUrl: baseUrl), parse);
 
   ///Post request expecting a typed list  result
   @deprecated
   Future<RestResult<List<T>>> postList<T>(String path, dynamic body, T parse(dynamic),
-          {String baseUrl, Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await post(path, body, query: query, options: options, baseUrl: baseUrl), (d) => _parseList(d, parse));
+          {String baseUrl, Map<String, dynamic> query, String contentType, Options options}) async =>
+      _parseRequest(await post(path, body, query: query, contenttype: contentType, options: options, baseUrl: baseUrl),
+          (d) => _parseList(d, parse));
 
   ///Put request expecting or not a typed result
   @deprecated
@@ -221,13 +221,15 @@ Future<RequestResult> head(String path,{String baseUrl, String contenttype, Map<
 
   ///Post request and parses the result using given parser
   Future<RestResult<T>> modelByPost<T>(String path, dynamic body, T parse(Map<String, dynamic> item),
-          {String baseUrl, Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await post(path, body, query: query, options: options, baseUrl: baseUrl), (e) => parse(e));
+          {String baseUrl, Map<String, dynamic> query, String contentType, Options options}) async =>
+      _parseRequest(
+          await post(path, body, query: query, contenttype: contentType, options: options, baseUrl: baseUrl), (e) => parse(e));
 
   ///Post request and parses the result using given parser
   Future<RestResult<List<T>>> listByPost<T>(String path, dynamic body, T parse(Map<String, dynamic> item),
-          {String baseUrl, Map<String, dynamic> query, Options options}) async =>
-      _parseRequest(await post(path, body, query: query, options: options, baseUrl: baseUrl), (d) => _parseList(d, parse));
+          {String baseUrl, Map<String, dynamic> query, String contentType, Options options}) async =>
+      _parseRequest(await post(path, body, query: query, contenttype: contentType, options: options, baseUrl: baseUrl),
+          (d) => _parseList(d, parse));
 
   ///Put request and parses the result using given parser
   Future<RestResult<T>> modelByPut<T>(String path, dynamic body, T parse(Map<String, dynamic> item),
