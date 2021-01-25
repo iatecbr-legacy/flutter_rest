@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:restbase/src/request_result.dart';
 
 ///An abastract class to use to connect to rest services.
 abstract class Rest {
@@ -80,57 +79,38 @@ abstract class Rest {
   }
 
   ///Get Request
-  Future<RequestResult> get(String path, {String baseUrl, Map<String, dynamic> query, Options options}) async {
-    RequestResult res = RequestResult();
-    try {
-      var resRest = await dio.get(composeUrl(path, query: query, baseUrl: baseUrl), options: _buildOptions(options));
-      res.data = resRest.data;
-    } catch (e) {
-      res.error = e;
-    }
-    return res;
+  Future<dynamic> get(String path, {String baseUrl, Map<String, dynamic> query, Options options}) async {
+    var resRest = await dio.get(composeUrl(path, query: query, baseUrl: baseUrl), options: _buildOptions(options));
+    return resRest.data;
   }
 
   ///Post Request
-  Future<RequestResult> post(String path, dynamic data,
+  Future<dynamic> post(String path, dynamic data,
       {String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
-    RequestResult res = RequestResult();
-
     if (options == null) options = Options();
     options.contentType = contenttype ?? defaultContentType;
 
     var resRest = await dio.post(composeUrl(path, query: query, baseUrl: baseUrl), data: data, options: _buildOptions(options));
-    res.data = resRest.data;
-
-    return res;
+    return resRest.data;
   }
 
-  Future<RequestResult> delete(String path,
-      {String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
-    RequestResult res = RequestResult();
-
+  Future<dynamic> delete(String path, {String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
     if (options == null) options = Options();
     options.contentType = contenttype ?? defaultContentType;
 
     var resRest = await dio.delete(composeUrl(path, query: query, baseUrl: baseUrl), options: _buildOptions(options));
-    res.data = resRest.data;
-
-    return res;
+    return resRest.data;
   }
 
-  Future<RequestResult> head(String path,
-      {String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
-    RequestResult res = RequestResult();
-
+  Future<dynamic> head(String path, {String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
     if (options == null) options = Options();
     options.contentType = contenttype ?? defaultContentType;
 
     var resRest = await dio.head(composeUrl(path, query: query, baseUrl: baseUrl), options: _buildOptions(options));
-    res.data = resRest.data;
-    return res;
+    return resRest.data;
   }
 
-  Future<RequestResult> upload(String path, File file,
+  Future<dynamic> upload(String path, File file,
       {String fileName,
       String fileType,
       String baseUrl,
@@ -139,7 +119,6 @@ abstract class Rest {
       String fileKey,
       MediaType fileMime,
       Map<String, dynamic> extraInfo}) async {
-    RequestResult res = RequestResult();
     var data = extraInfo ?? {};
     data[fileKey ?? "file"] = await MultipartFile.fromFile(file.path, filename: fileName, contentType: fileMime);
 
@@ -147,21 +126,17 @@ abstract class Rest {
 
     var resRest =
         await dio.post(composeUrl(path, query: query, baseUrl: baseUrl), data: formData, options: _buildOptions(options));
-    res.data = resRest.data;
-    return res;
+    return resRest.data;
   }
 
   ///Put Request
-  Future<RequestResult> put(String path, dynamic data,
+  Future<dynamic> put(String path, dynamic data,
       {String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
-    RequestResult res = RequestResult();
-
     if (options == null) options = Options();
     options.contentType = contenttype ?? defaultContentType;
 
     var resRest = await dio.put(composeUrl(path, query: query, baseUrl: baseUrl), data: data, options: _buildOptions(options));
-    res.data = resRest.data;
-    return res;
+    return resRest.data;
   }
 
   ///Get request and parses the result using given parser
@@ -214,7 +189,7 @@ abstract class Rest {
   List<T> _parseList<T>(dynamic itens, T parse(Map<String, dynamic> item)) =>
       (itens as List<dynamic>).map((e) => parse(e)).toList();
 
-  T _parseRequest<T>(RequestResult response, T parse(dynamic)) => parse(response.data);
+  T _parseRequest<T>(dynamic response, T parse(dynamic)) => parse(response.data);
 
   Options _buildOptions(Options options) {
     if (options == null) return null;
