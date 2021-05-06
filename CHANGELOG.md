@@ -1,3 +1,6 @@
+# [0.3.2] - 2021-05-06
+
+- Update dependencies
 # [0.3.1] - 2021-01-25
 
 - Data parser bug fixed

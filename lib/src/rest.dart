@@ -193,6 +193,6 @@ abstract class Rest {
 
   Options _buildOptions(Options options) {
     if (options == null) return null;
-    return options.merge(sendTimeout: connectTimeout, receiveTimeout: receiveTimeout);
+    return options.copyWith(sendTimeout: connectTimeout, receiveTimeout: receiveTimeout);
   }
 }
