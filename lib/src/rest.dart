@@ -189,7 +189,7 @@ abstract class Rest {
   List<T> _parseList<T>(dynamic itens, T parse(Map<String, dynamic> item)) =>
       (itens as List<dynamic>).map((e) => parse(e)).toList();
 
-  T _parseRequest<T>(dynamic response, T parse(dynamic)) => parse(response.data);
+  T _parseRequest<T>(dynamic data, T parse(dynamic)) => parse(data);
 
   Options _buildOptions(Options options) {
     if (options == null) return null;

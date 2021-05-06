@@ -1,3 +1,11 @@
+# [0.3.1] - 2021-01-25
+
+- Data parser bug fixed
+
+# [0.3.0] - 2021-01-25
+
+- Removed RestResponse and RequestResponse, let exception bubling
+
 # [0.2.10] - 2021-01-04
 
 - Added Patch method
