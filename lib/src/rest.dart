@@ -139,6 +139,15 @@ abstract class Rest {
     return resRest.data;
   }
 
+  Future<dynamic> patch(String path, dynamic data,
+      {String baseUrl, String contenttype, Map<String, dynamic> query, Options options}) async {
+    if (options == null) options = Options();
+    options.contentType = contenttype ?? defaultContentType;
+
+    var resRest = await dio.patch(composeUrl(path, query: query, baseUrl: baseUrl), data: data, options: _buildOptions(options));
+    return resRest.data;
+  }
+
   ///Get request and parses the result using given parser
   Future<T> modelByGet<T>(String path, T parse(Map<String, dynamic> item),
           {String baseUrl, Map<String, dynamic> query, Options options}) async =>
